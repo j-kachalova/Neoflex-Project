@@ -1,4 +1,4 @@
 package com.kachalova.calculator.service;
 
-public class Scoring {
+public class ValidationService {
 }
