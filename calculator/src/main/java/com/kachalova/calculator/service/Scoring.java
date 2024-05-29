@@ -1,4 +1,4 @@
-package src.main.java.com.kachalova.calculator.service;
+package com.kachalova.calculator.service;
 
 public class Scoring {
 }

@@ -4,22 +4,22 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ScoringDataDto {
-    BigDecimal amount;
-    Integer term;
-    String firstName;
-    String lastName;
-    String middleName;
-    Enum gender;
-    LocalDate birthdate;
-    String passportSeries;
-    String passportNumber;
-    LocalDate passportIssueDate;
-    String passportIssueBranch;
-    Enum maritalStatus;
-    Integer dependentAmount;
-    EmploymentDto employment;
-    String accountNumber;
-    Boolean isInsuranceEnabled;
-    Boolean isSalaryClient;
+    private BigDecimal amount;
+    private Integer term;
+    private String firstName;
+    private String lastName;
+    private String middleName;
+    private Enum gender;
+    private LocalDate birthdate;
+    private String passportSeries;
+    private String passportNumber;
+    private LocalDate passportIssueDate;
+    private String passportIssueBranch;
+    private Enum maritalStatus;
+    private Integer dependentAmount;
+    private EmploymentDto employment;
+    private String accountNumber;
+    private Boolean isInsuranceEnabled;
+    private Boolean isSalaryClient;
 
 }
