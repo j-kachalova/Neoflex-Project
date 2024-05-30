@@ -1,12 +1,16 @@
 package com.kachalova.calculator.dto;
 
-import com.kachalova.calculator.domain.EmploymentStatus;
-import com.kachalova.calculator.domain.Position;
-import lombok.Data;
+import com.kachalova.calculator.enums.EmploymentStatus;
+import com.kachalova.calculator.enums.Position;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmploymentDto {
     private EmploymentStatus employmentStatus;
     private String employerINN;

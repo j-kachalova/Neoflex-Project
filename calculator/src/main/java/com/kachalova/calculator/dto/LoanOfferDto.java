@@ -1,11 +1,15 @@
 package com.kachalova.calculator.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoanOfferDto {
     private UUID statementId;
     private BigDecimal requestedAmount;

@@ -1,4 +1,4 @@
-package com.kachalova.calculator.domain;
+package com.kachalova.calculator.enums;
 
 public enum MaritalStatus {
     MARRIED, DIVORCED, SINGLE

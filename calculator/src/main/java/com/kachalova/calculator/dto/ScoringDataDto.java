@@ -1,12 +1,16 @@
 package com.kachalova.calculator.dto;
 
-import com.kachalova.calculator.domain.Gender;
-import com.kachalova.calculator.domain.MaritalStatus;
-import lombok.Data;
+import com.kachalova.calculator.enums.Gender;
+import com.kachalova.calculator.enums.MaritalStatus;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class ScoringDataDto {
     private BigDecimal amount;
     private Integer term;

@@ -1,12 +1,16 @@
 package com.kachalova.calculator.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoanStatementRequestDto {
     @NotNull
     @DecimalMin(value = "30000", message = "Loan amount must be at least 30000")
@@ -27,11 +31,10 @@ public class LoanStatementRequestDto {
     @Pattern(regexp = "[a-zA-Z]{2,30}", message = "Middle name must consist of 2 to 30 Latin letters")
     private String middleName;
 
-    @Pattern(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @Email(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     private String email;
 
     @NotNull
-    @Past
     private LocalDate birthdate;
 
     @NotBlank
@@ -41,5 +44,12 @@ public class LoanStatementRequestDto {
     @NotBlank
     @Pattern(regexp = "\\d{6}", message = "Passport number must be 6 digits")
     private String passportNumber;
+
+    @AssertTrue
+    public boolean isValidBirthday() {
+
+        return (LocalDate.now().getYear() - this.birthdate.getYear() > 18);
+    }
+
 
 }

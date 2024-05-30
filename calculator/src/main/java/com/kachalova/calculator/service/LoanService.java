@@ -2,6 +2,8 @@ package com.kachalova.calculator.service;
 
 import com.kachalova.calculator.dto.LoanOfferDto;
 import com.kachalova.calculator.dto.LoanStatementRequestDto;
+import com.kachalova.calculator.interfaces.LoanOffersCounterInt;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
@@ -12,12 +14,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class LoanService {
-    private final BigDecimal baseInterestRate = BigDecimal.valueOf(16.0); // Базовая процентная ставка
+public class LoanService implements LoanOffersCounterInt {
+
     private final BigDecimal insuranceRateDecrease = BigDecimal.valueOf(3.0); // Уменьшение ставки при наличии страховки
     private final BigDecimal salaryClientRateDecrease = BigDecimal.valueOf(1.0); // Уменьшение ставки для зарплатного клиента
-
-    public List<LoanOfferDto> generateLoanOffers(LoanStatementRequestDto request) {
+    @Override
+    public List<LoanOfferDto> generateLoanOffers(LoanStatementRequestDto request, BigDecimal baseInterestRate) {
         List<LoanOfferDto> loanOffers = new ArrayList<>();
 
         boolean[] insuranceOptions = {false, true};
@@ -37,7 +39,6 @@ public class LoanService {
                 LoanOfferDto offer = new LoanOfferDto();
                 offer.setStatementId(UUID.randomUUID());
                 offer.setRequestedAmount(request.getAmount());
-                // Логика расчета totalAmount, monthlyPayment и других параметров
                 offer.setTerm(request.getTerm());
                 offer.setRate(interestRate);
                 offer.setIsInsuranceEnabled(isInsuranceEnabled);
