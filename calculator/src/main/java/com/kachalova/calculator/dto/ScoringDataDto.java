@@ -1,5 +1,6 @@
 package com.kachalova.calculator.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kachalova.calculator.enums.Gender;
 import com.kachalova.calculator.enums.MaritalStatus;
 import lombok.*;
@@ -18,6 +19,7 @@ public class ScoringDataDto {
     private String lastName;
     private String middleName;
     private Gender gender;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate birthdate;
     private String passportSeries;
     private String passportNumber;

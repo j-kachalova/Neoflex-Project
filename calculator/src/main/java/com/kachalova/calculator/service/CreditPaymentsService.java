@@ -9,43 +9,51 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 @Service
 public class CreditPaymentsService implements CreditPaymentsInt {
-   public void calculateCredit(){
-
-    }
     static Logger log = Logger.getLogger(CreditPaymentsService.class.getName());
 
     @Override
     public BigDecimal calculateMonthlyPayment(BigDecimal rate, BigDecimal amount, Integer term) {
-        BigDecimal monthlyRate = rate.divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP);
+
+        BigDecimal monthlyRate = rate.divide(BigDecimal.valueOf(1200),7, RoundingMode. HALF_UP);
         BigDecimal x = monthlyRate.add(BigDecimal.valueOf(1)).pow(term);
-        BigDecimal annuityRate = monthlyRate.multiply(x).divide(x.subtract(BigDecimal.valueOf(1)), RoundingMode.HALF_UP);
+        BigDecimal annuityRate = monthlyRate.multiply(x).divide(x.subtract(BigDecimal.valueOf(1)), 7, RoundingMode.HALF_UP);
         BigDecimal monthlyPayment = amount.multiply(annuityRate);
-        return monthlyPayment;
+        return monthlyPayment.setScale(2, RoundingMode.HALF_UP);
     }
     @Override
     public BigDecimal calculatePsk(BigDecimal monthlyPayment, Integer term){
         return monthlyPayment.multiply(BigDecimal.valueOf(term));
     }
     @Override
-    public List<PaymentScheduleElementDto> getPaymentSchedule(ScoringDataDto scoringDataDto, BigDecimal psk, BigDecimal monthlyPayment, BigDecimal rate) {
+    public List<PaymentScheduleElementDto> getPaymentSchedule(ScoringDataDto scoringDataDto, BigDecimal monthlyPayment, BigDecimal rate, LocalDate date) {
         List<PaymentScheduleElementDto> paymentScheduleElements = new ArrayList<>();
-        BigDecimal totalPayment = psk;
+        PaymentScheduleElementDto paymentScheduleElementDto;
+        BigDecimal totalPayment = monthlyPayment;
         BigDecimal remainingDebt=scoringDataDto.getAmount();
-        for (int i = 1; i <= scoringDataDto.getTerm(); i++) {
-            Integer number=i;
-            LocalDate date = LocalDate.now().plusMonths(i);
+        LocalDate date1 = date.plusMonths(1);
 
-            BigDecimal debtPayment = remainingDebt.multiply(rate).multiply(BigDecimal.valueOf(date.getDayOfMonth())).divide(BigDecimal.valueOf(36500), RoundingMode.HALF_UP);
+        for(int i = 1;remainingDebt.compareTo(BigDecimal.ZERO)>0;i++){
+            Integer number=i;
+            LocalDate date2 = date1.minusMonths(1);
+            long daysDifference = date2.until(date1, ChronoUnit.DAYS);
+
+            System.out.println("Разница в днях между датами: " + daysDifference);
+            BigDecimal debtPayment = remainingDebt.multiply(rate).multiply(BigDecimal.valueOf(daysDifference*0.01)).divide(BigDecimal.valueOf(date1.lengthOfYear()), 2, RoundingMode.HALF_UP);
+            log.info("debtPayment "+debtPayment + "days " + daysDifference);
             BigDecimal interestPayment = monthlyPayment.subtract(debtPayment);
-            PaymentScheduleElementDto paymentScheduleElementDto = new PaymentScheduleElementDto(number, date, totalPayment, interestPayment, debtPayment, remainingDebt);
+            remainingDebt=remainingDebt.subtract(interestPayment);
+            if(remainingDebt.compareTo(BigDecimal.ZERO)<0) remainingDebt = BigDecimal.ZERO;
+            paymentScheduleElementDto = new PaymentScheduleElementDto(number, date1, totalPayment, interestPayment, debtPayment, remainingDebt);
             paymentScheduleElements.add(paymentScheduleElementDto);
-            remainingDebt=remainingDebt.subtract(monthlyPayment);
+            date1 = date1.plusMonths(1);
         }
         return paymentScheduleElements;
     }

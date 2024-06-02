@@ -3,6 +3,9 @@ package com.kachalova.calculator.service;
 import com.kachalova.calculator.dto.LoanOfferDto;
 import com.kachalova.calculator.dto.LoanStatementRequestDto;
 import com.kachalova.calculator.interfaces.LoanOffersCounterInt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,40 +19,39 @@ import java.util.UUID;
 @Service
 public class LoanService implements LoanOffersCounterInt {
 
-    private final BigDecimal insuranceRateDecrease = BigDecimal.valueOf(3.0); // Уменьшение ставки при наличии страховки
-    private final BigDecimal salaryClientRateDecrease = BigDecimal.valueOf(1.0); // Уменьшение ставки для зарплатного клиента
+
+    private static final Logger log = LoggerFactory.getLogger(LoanService.class);
+
     @Override
     public List<LoanOfferDto> generateLoanOffers(LoanStatementRequestDto request, BigDecimal baseInterestRate) {
-        List<LoanOfferDto> loanOffers = new ArrayList<>();
 
-        boolean[] insuranceOptions = {false, true};
-        boolean[] salaryClientOptions = {false, true};
+        List<LoanOfferDto> loanOfferDtoList= List.of(
+                createLoanOfferDto(false, false, request, baseInterestRate),
+                createLoanOfferDto(false, true, request, baseInterestRate),
+                createLoanOfferDto(true, false, request, baseInterestRate),
+                createLoanOfferDto(true, true, request, baseInterestRate)
 
-        for (boolean isInsuranceEnabled : insuranceOptions) {
-            for (boolean isSalaryClient : salaryClientOptions) {
-                BigDecimal interestRate = baseInterestRate;
+        );
+        log.info("Generated loan offers list: {}", loanOfferDtoList);
+        return loanOfferDtoList;
+    }
+  private LoanOfferDto createLoanOfferDto( Boolean isInsuranceEnabled,
+                                           Boolean isSalaryClient,
+                                           LoanStatementRequestDto requestDto,
+                                           BigDecimal baseInterestRate) {
+        ScoringService scoringService = new ScoringService();
+        CreditPaymentsService creditPaymentsService = new CreditPaymentsService();
+        BigDecimal rate = scoringService.checkSalaryClient(isSalaryClient, baseInterestRate);
+        rate=scoringService.checkInsuranceEnabled(isInsuranceEnabled, rate);
+        BigDecimal monthlyPayment = creditPaymentsService.calculateMonthlyPayment(rate, requestDto.getAmount(), requestDto.getTerm());
+        BigDecimal totalAmount = creditPaymentsService.calculatePsk(monthlyPayment,requestDto.getTerm());
 
-                if (isInsuranceEnabled) {
-                    interestRate = interestRate.subtract(insuranceRateDecrease);
-                }
-                if (isSalaryClient) {
-                    interestRate = interestRate.subtract(salaryClientRateDecrease);
-                }
-
-                LoanOfferDto offer = new LoanOfferDto();
-                offer.setStatementId(UUID.randomUUID());
-                offer.setRequestedAmount(request.getAmount());
-                offer.setTerm(request.getTerm());
-                offer.setRate(interestRate);
-                offer.setIsInsuranceEnabled(isInsuranceEnabled);
-                offer.setIsSalaryClient(isSalaryClient);
-
-                loanOffers.add(offer);
-            }
-        }
-
-        loanOffers.sort(Comparator.comparing(LoanOfferDto::getRate));
-
-        return loanOffers;
+        return new LoanOfferDto(UUID.randomUUID(),
+                requestDto.getAmount(),
+                totalAmount,
+                requestDto.getTerm(),
+                monthlyPayment,
+                rate,isInsuranceEnabled,
+                isSalaryClient);
     }
 }

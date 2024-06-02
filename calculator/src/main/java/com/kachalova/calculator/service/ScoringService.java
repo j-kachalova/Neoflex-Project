@@ -9,15 +9,15 @@ import com.kachalova.calculator.dto.ScoringDataDto;
 import com.kachalova.calculator.exeptions.ScoringdataDtoValidationExc;
 import com.kachalova.calculator.interfaces.ScoringDataInt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
+
 
 @Service
 @Validated
@@ -35,17 +35,26 @@ public class ScoringService implements ScoringDataInt {
     private final BigDecimal manAgeRateDecrease = BigDecimal.valueOf(3.0);
     private final BigDecimal nonBinaryRateIncrease = BigDecimal.valueOf(7.0);
     @Override
-    public BigDecimal makeScoring(@Valid ScoringDataDto scoringDataDto, BigDecimal rate) throws ScoringdataDtoValidationExc{
-
+    public BigDecimal makeScoring(@Valid ScoringDataDto scoringDataDto, BigDecimal rate) throws ScoringdataDtoValidationExc {
+        log.info("got "+scoringDataDto.toString()+rate.toString());
         LocalDate birthday = scoringDataDto.getBirthdate();
         Integer age = birthday.until(LocalDate.now()).getYears();
-
+        log.info("birthday is "+birthday);
+        log.info("age is "+age);
         rate = checkEmploymentStatus(scoringDataDto.getEmployment().getEmploymentStatus(), rate);
+        log.info("rate after checkEmploymentStatus is "+rate);
         rate = checkPosition(scoringDataDto.getEmployment().getPosition(), rate);
+        log.info("rate after checkPosition is "+rate);
         checkAmount(scoringDataDto.getAmount(), scoringDataDto.getEmployment().getSalary());
         rate = checkMaritalStatus(scoringDataDto.getMaritalStatus(),rate);
+        log.info("rate after checkMaritalStatus is "+rate);
         rate = checkGenderAge(scoringDataDto.getGender(), age, rate);
+        log.info("rate after checkGenderAge is "+rate);
         checkWorkExperience(scoringDataDto.getEmployment());
+        rate=checkSalaryClient(scoringDataDto.getIsSalaryClient(),rate);
+        log.info("rate after checkSalaryClient is "+rate);
+        rate=checkInsuranceEnabled(scoringDataDto.getIsInsuranceEnabled(),rate);
+        log.info("rate after checkInsuranceEnabled is "+rate);
         return rate;
     }
     private BigDecimal checkEmploymentStatus(EmploymentStatus status, BigDecimal rate)throws ScoringdataDtoValidationExc {
@@ -123,5 +132,13 @@ public class ScoringService implements ScoringDataInt {
             throw new ScoringdataDtoValidationExc("DECLINED :NOT ENOUGH CURRENT WORK EXPERIENCE ");
         }
 
+    }
+    public BigDecimal checkInsuranceEnabled(Boolean isInsuranceEnabled, BigDecimal rate) {
+        if(isInsuranceEnabled) rate=rate.subtract(BigDecimal.valueOf(3.0));
+        return rate;
+    }
+    public BigDecimal checkSalaryClient(Boolean isSalaryClient, BigDecimal rate) {
+        if (isSalaryClient) rate = rate.subtract(BigDecimal.valueOf(1.0));
+        return rate;
     }
 }
