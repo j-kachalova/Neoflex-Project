@@ -31,16 +31,12 @@ public class ScoringController {
     @ApiOperation(value = "get creditDTO", response = CreditDto.class)
     @PostMapping("/calculator/calc")
     public CreditDto getCredit(@RequestBody ScoringDataDto scoringDataDto) throws ScoringdataDtoValidationExc {
-        log.info("Got ScoringDataDto" + scoringDataDto.getFirstName() + " " + scoringDataDto.getLastName() + " amount:" + scoringDataDto.getAmount() + " birthday :" + scoringDataDto.getBirthdate()
-                + " term :" + scoringDataDto.getTerm() + "dependent amount" + scoringDataDto.getDependentAmount() + "gender :" + scoringDataDto.getGender()
-                + " marital status" + scoringDataDto.getMaritalStatus());
+        log.info("Got ScoringDataDto" +scoringDataDto.toString());
         BigDecimal rate = scoringService.makeScoring(scoringDataDto, keyRate);
-        log.info("Got rate" + rate);
         BigDecimal monthlyPayment = creditPaymentsService.calculateMonthlyPayment(rate,scoringDataDto.getAmount(),scoringDataDto.getTerm());
         BigDecimal psk = creditPaymentsService.calculatePsk(monthlyPayment, scoringDataDto.getTerm());
         List<PaymentScheduleElementDto> paymentScheduleElementDtoList = creditPaymentsService.getPaymentSchedule(scoringDataDto,monthlyPayment, rate, LocalDate.now());
         CreditDto creditDto = new CreditDto(scoringDataDto.getAmount(), scoringDataDto.getTerm(), monthlyPayment, rate, psk, scoringDataDto.getIsInsuranceEnabled(),scoringDataDto.getIsSalaryClient(), paymentScheduleElementDtoList);
-
         log.info("Sended CreditDTO" + creditDto.toString());
         return creditDto;
     }

@@ -26,17 +26,20 @@ public class CreditPaymentsService implements CreditPaymentsInt {
         BigDecimal x = monthlyRate.add(BigDecimal.valueOf(1)).pow(term);
         BigDecimal annuityRate = monthlyRate.multiply(x).divide(x.subtract(BigDecimal.valueOf(1)), 7, RoundingMode.HALF_UP);
         BigDecimal monthlyPayment = amount.multiply(annuityRate);
+        log.info("Monthly payment : " + monthlyPayment.setScale(2, RoundingMode.HALF_UP));
         return monthlyPayment.setScale(2, RoundingMode.HALF_UP);
     }
     @Override
     public BigDecimal calculatePsk(BigDecimal monthlyPayment, Integer term){
-        return monthlyPayment.multiply(BigDecimal.valueOf(term));
+        BigDecimal psk = monthlyPayment.multiply(BigDecimal.valueOf(term));
+        log.info("psk calculation" +psk.toString());
+        return psk;
     }
     @Override
     public List<PaymentScheduleElementDto> getPaymentSchedule(ScoringDataDto scoringDataDto, BigDecimal monthlyPayment, BigDecimal rate, LocalDate date) {
+
         List<PaymentScheduleElementDto> paymentScheduleElements = new ArrayList<>();
         PaymentScheduleElementDto paymentScheduleElementDto;
-        BigDecimal totalPayment = monthlyPayment;
         BigDecimal remainingDebt=scoringDataDto.getAmount();
         LocalDate date1 = date.plusMonths(1);
 
@@ -44,16 +47,14 @@ public class CreditPaymentsService implements CreditPaymentsInt {
             Integer number=i;
             LocalDate date2 = date1.minusMonths(1);
             long daysDifference = date2.until(date1, ChronoUnit.DAYS);
-
-            System.out.println("Разница в днях между датами: " + daysDifference);
             BigDecimal debtPayment = remainingDebt.multiply(rate).multiply(BigDecimal.valueOf(daysDifference*0.01)).divide(BigDecimal.valueOf(date1.lengthOfYear()), 2, RoundingMode.HALF_UP);
-            log.info("debtPayment "+debtPayment + "days " + daysDifference);
             BigDecimal interestPayment = monthlyPayment.subtract(debtPayment);
             remainingDebt=remainingDebt.subtract(interestPayment);
             if(remainingDebt.compareTo(BigDecimal.ZERO)<0) remainingDebt = BigDecimal.ZERO;
-            paymentScheduleElementDto = new PaymentScheduleElementDto(number, date1, totalPayment, interestPayment, debtPayment, remainingDebt);
+            paymentScheduleElementDto = new PaymentScheduleElementDto(number, date1, monthlyPayment, interestPayment, debtPayment, remainingDebt);
             paymentScheduleElements.add(paymentScheduleElementDto);
             date1 = date1.plusMonths(1);
+            log.info("paymentScheduleElementDto " + paymentScheduleElementDto);
         }
         return paymentScheduleElements;
     }

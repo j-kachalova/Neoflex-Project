@@ -2,7 +2,7 @@
   "properties": [
     {
       "name": "app.keyRate",
-      "type": "java.lang.String",
+      "type": "java.math.BigDecimal",
       "description": "Description for app.keyRate."
     },
     {
