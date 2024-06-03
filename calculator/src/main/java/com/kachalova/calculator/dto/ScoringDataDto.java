@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+
 @Getter
 @Setter
 @ToString
@@ -19,7 +20,7 @@ public class ScoringDataDto {
     private String lastName;
     private String middleName;
     private Gender gender;
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthdate;
     private String passportSeries;
     private String passportNumber;

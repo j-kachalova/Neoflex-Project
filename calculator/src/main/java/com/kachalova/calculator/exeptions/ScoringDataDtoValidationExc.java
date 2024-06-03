@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class ScoringdataDtoValidationExc extends Exception {
-    public ScoringdataDtoValidationExc(String message) {
+public class ScoringDataDtoValidationExc extends Exception {
+    public ScoringDataDtoValidationExc(String message) {
         super(message);
     }
 }
