@@ -25,11 +25,20 @@ class LoanOfferControllerTest {
 
     @Test
     public void loanControllerTest() throws Exception {
-        LoanStatementRequestDto loanStatementRequestDto = new LoanStatementRequestDto(BigDecimal.valueOf(300000),
-                18, "test", "test", "test", "test@test.com",
-                LocalDate.now().minusYears(40), "1234", "123456");
+        LoanStatementRequestDto loanStatementRequestDto = LoanStatementRequestDto.builder()
+                .amount(BigDecimal.valueOf(300000))
+                .term(18)
+                .firstName("test")
+                .lastName("test")
+                .middleName("test")
+                .email("test@test.com")
+                .birthdate(LocalDate.now().minusYears(40))
+                .passportSeries("1234")
+                .passportNumber("123456")
+                .build();
         String statementsJson = objectMapper.writeValueAsString(loanStatementRequestDto);
-        mockMvc.perform(post("/calculator/offers").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/calculator/offers")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(statementsJson))
                 .andExpect(status().isOk());
     }

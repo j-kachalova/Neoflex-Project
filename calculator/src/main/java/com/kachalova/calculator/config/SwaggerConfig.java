@@ -14,7 +14,6 @@ import springfox.documentation.spring.web.plugins.Docket;
 @Configuration
 @EnableWebMvc
 public class SwaggerConfig implements WebMvcConfigurer {
-    /*http://localhost:8080/swagger-ui/index.html*/
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()

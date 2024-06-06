@@ -19,9 +19,17 @@ public class LoanServiceTest {
 
     @Test
     public void generateLoanOffers() {
-        LoanStatementRequestDto loanStatementRequestDto = new LoanStatementRequestDto(BigDecimal.valueOf(100000.0),
-                18, "test", "test", "test", "test@test.com",
-                LocalDate.now().minusYears(30), "1324", "984532");
+        LoanStatementRequestDto loanStatementRequestDto = LoanStatementRequestDto.builder()
+                .amount(BigDecimal.valueOf(100000))
+                .term(18)
+                .firstName("test")
+                .lastName("test")
+                .middleName("test")
+                .email("test@test.com")
+                .birthdate(LocalDate.now().minusYears(30))
+                .passportSeries("1234")
+                .passportNumber("123456")
+                .build();
         List<LoanOfferDto> loanOfferDtoList = loanService.generateLoanOffers(loanStatementRequestDto, BigDecimal.valueOf(16.0));
         assertEquals(BigDecimal.valueOf(16.0), loanOfferDtoList.get(0).getRate());
         assertEquals(BigDecimal.valueOf(15.0), loanOfferDtoList.get(1).getRate());

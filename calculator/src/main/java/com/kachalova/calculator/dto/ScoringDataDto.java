@@ -3,14 +3,16 @@ package com.kachalova.calculator.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kachalova.calculator.enums.Gender;
 import com.kachalova.calculator.enums.MaritalStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@ToString
+@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScoringDataDto {

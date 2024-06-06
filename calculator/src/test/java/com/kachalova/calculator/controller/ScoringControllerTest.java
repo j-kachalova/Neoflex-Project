@@ -30,9 +30,31 @@ class ScoringControllerTest {
 
     @Test
     public void scoringControllerTest() throws Exception {
-        ScoringDataDto sd = new ScoringDataDto(BigDecimal.valueOf(300000), 6, "test", "test",
-                "test", FEMALE, LocalDate.now().minusYears(40), "1234", "123456", LocalDate.now(), "test", MARRIED,
-                0, new EmploymentDto(EMPLOYED, "123", BigDecimal.valueOf(100000), TOP_MANAGER, 20, 20), "12312", true, true);
+        EmploymentDto employmentDto = EmploymentDto.builder()
+                .employmentStatus(EMPLOYED)
+                .employerINN("123")
+                .salary(BigDecimal.valueOf(100000))
+                .position(TOP_MANAGER)
+                .workExperienceTotal(20)
+                .workExperienceCurrent(20)
+                .build();
+        ScoringDataDto sd = ScoringDataDto.builder()
+                .amount(BigDecimal.valueOf(300000))
+                .term(6)
+                .firstName("test")
+                .lastName("test")
+                .middleName("test")
+                .gender(FEMALE)
+                .birthdate(LocalDate.now().minusYears(40))
+                .passportSeries("1234")
+                .passportNumber("123456")
+                .passportIssueDate(LocalDate.now())
+                .maritalStatus(MARRIED)
+                .employment(employmentDto)
+                .accountNumber("12312")
+                .isInsuranceEnabled(true)
+                .isSalaryClient(true)
+                .build();
         String scoringJson = objectMapper.writeValueAsString(sd);
         mockMvc.perform(post("/calculator/calc")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -1,5 +1,6 @@
 package com.kachalova.calculator.service.impl;
 
+import com.kachalova.calculator.config.PropertiesConfig;
 import com.kachalova.calculator.dto.EmploymentDto;
 import com.kachalova.calculator.dto.ScoringDataDto;
 import com.kachalova.calculator.enums.EmploymentStatus;
@@ -8,6 +9,7 @@ import com.kachalova.calculator.enums.MaritalStatus;
 import com.kachalova.calculator.enums.Position;
 import com.kachalova.calculator.exeptions.ScoringDataDtoValidationExc;
 import com.kachalova.calculator.service.ScoringService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -19,55 +21,51 @@ import java.time.LocalDate;
 @Slf4j
 @Service
 @Validated
+@RequiredArgsConstructor
 public class ScoringServiceImpl implements ScoringService {
-    private final BigDecimal selfEmployedRateIncrease = BigDecimal.valueOf(1.0);
-    private final BigDecimal businessOwnerRateIncrease = BigDecimal.valueOf(2.0);
-    private final BigDecimal middleManagerRateDecrease = BigDecimal.valueOf(2.0);
-    private final BigDecimal topManagerRateDecrease = BigDecimal.valueOf(3.0);
-    private final BigDecimal marriedRateDecrease = BigDecimal.valueOf(3.0);
-    private final BigDecimal divorcedRateIncrease = BigDecimal.valueOf(1.0);
-    private final BigDecimal womanAgeRateDecrease = BigDecimal.valueOf(3.0);
-    private final BigDecimal manAgeRateDecrease = BigDecimal.valueOf(3.0);
-    private final BigDecimal nonBinaryRateIncrease = BigDecimal.valueOf(7.0);
+    private final PropertiesConfig properties;
+    private static final Integer MIN_FEMALE_AGE = 32;
+    private static final Integer MAX_FEMALE_AGE = 60;
+    private static final Integer MIN_MALE_AGE = 20;
+    private static final Integer MAX_MALE_AGE = 55;
+    private static final Integer MIN_AGE = 20;
+    private static final Integer MAX_AGE = 65;
 
     @Override
-    public BigDecimal makeScoring(@Valid ScoringDataDto scoringDataDto, BigDecimal rate) throws ScoringDataDtoValidationExc {
-        log.info("got {}{}", scoringDataDto.toString(), rate.toString());
+    public BigDecimal makeScoring(@Valid ScoringDataDto scoringDataDto, BigDecimal rate) {
+        log.info("request with scoringDataDto: {}, rate: {}", scoringDataDto, rate);
         BigDecimal userRate = rate;
         LocalDate birthday = scoringDataDto.getBirthdate();
         Integer age = birthday.until(LocalDate.now()).getYears();
-        log.info("birthday is {}", birthday);
-        log.info("age is {}", age);
+        log.debug("birthday: {},age: {}", birthday, age);
         userRate = checkEmploymentStatus(scoringDataDto.getEmployment().getEmploymentStatus(), userRate);
-        log.info("rate after checkEmploymentStatus is {}", userRate);
+        log.debug("rate after checkEmploymentStatus: {}", userRate);
         userRate = checkPosition(scoringDataDto.getEmployment().getPosition(), userRate);
-        log.info("rate after checkPosition is {}", userRate);
+        log.debug("rate after checkPosition: {}", userRate);
         checkAmount(scoringDataDto.getAmount(), scoringDataDto.getEmployment().getSalary());
         userRate = checkMaritalStatus(scoringDataDto.getMaritalStatus(), userRate);
-        log.info("rate after checkMaritalStatus is {}", userRate);
+        log.debug("rate after checkMaritalStatus: {}", userRate);
         userRate = checkGenderAge(scoringDataDto.getGender(), age, userRate);
-        log.info("rate after checkGenderAge is {}", userRate);
+        log.debug("rate after checkGenderAge: {}", userRate);
         checkWorkExperience(scoringDataDto.getEmployment());
         userRate = checkSalaryClient(scoringDataDto.getIsSalaryClient(), userRate);
-        log.info("rate after checkSalaryClient is {}", userRate);
+        log.debug("rate after checkSalaryClient: {}", userRate);
         userRate = checkInsuranceEnabled(scoringDataDto.getIsInsuranceEnabled(), userRate);
-        log.info("rate after checkInsuranceEnabled is {}", userRate);
+        log.info("userRate: {}", userRate);
         return userRate;
     }
 
-    private BigDecimal checkEmploymentStatus(EmploymentStatus status, BigDecimal rate) throws ScoringDataDtoValidationExc {
+    private BigDecimal checkEmploymentStatus(EmploymentStatus status, BigDecimal rate) {
         switch (status) {
             case SELF_EMPLOYED:
-                rate = rate.add(selfEmployedRateIncrease);
+                rate = rate.add(properties.getSelfEmployedRate());
                 break;
             case BUSINESS_OWNER:
-                rate = rate.add(businessOwnerRateIncrease);
+                rate = rate.add(properties.getBusinessOwnerRate());
                 break;
             case UNEMPLOYED:
-                log.info("DECLINED :UNEMPLOYED");
-                throw new ScoringDataDtoValidationExc("DECLINED :UNEMPLOYED");
-            default:
-                break;
+                log.error("DECLINED: UNEMPLOYED");
+                throw new ScoringDataDtoValidationExc("DECLINED: UNEMPLOYED");
         }
         return rate;
     }
@@ -75,77 +73,93 @@ public class ScoringServiceImpl implements ScoringService {
     private BigDecimal checkPosition(Position position, BigDecimal rate) {
         switch (position) {
             case MIDDLE_MANAGER:
-                rate = rate.subtract(middleManagerRateDecrease);
+                rate = rate.subtract(properties.getMiddleManagerRate());
                 break;
             case TOP_MANAGER:
-                rate = rate.subtract(topManagerRateDecrease);
-                break;
-            default:
+                rate = rate.subtract(properties.getTopManagerRate());
                 break;
         }
         return rate;
     }
 
-    private void checkAmount(BigDecimal amount, BigDecimal salary) throws ScoringDataDtoValidationExc {
-        if (amount.compareTo(salary.multiply(BigDecimal.valueOf(25))) > 1) {
-            log.info("DECLINED :NOT ENOUGH SALARY");
-            throw new ScoringDataDtoValidationExc("DECLINED :NOT ENOUGH SALARY");
+    private void checkAmount(BigDecimal amount, BigDecimal salary) {
+        if (amount.compareTo(salary.multiply(BigDecimal.valueOf(properties.getNumberSalaries()))) > 1) {
+            log.error("DECLINED: NOT ENOUGH SALARY");
+            throw new ScoringDataDtoValidationExc("DECLINED: NOT ENOUGH SALARY");
         }
     }
 
     private BigDecimal checkMaritalStatus(MaritalStatus status, BigDecimal rate) {
         switch (status) {
             case MARRIED:
-                rate = rate.subtract(marriedRateDecrease);
+                rate = rate.subtract(properties.getMarriedRate());
                 break;
             case DIVORCED:
-                rate = rate.add(divorcedRateIncrease);
-                break;
-            default:
+                rate = rate.add(properties.getDivorcedRate());
                 break;
         }
         return rate;
     }
 
-    private BigDecimal checkGenderAge(Gender gender, Integer age, BigDecimal rate) throws ScoringDataDtoValidationExc {
-        if (age < 20 || age > 65) {
-            log.info("DECLINED :Age should be between 20 and 65");
-            throw new ScoringDataDtoValidationExc("DECLINED :Age should be between 20 and 65");
-        }
+    private BigDecimal checkGenderAge(Gender gender, Integer age, BigDecimal rate) {
+        checkAge(age);
         switch (gender) {
             case MALE:
-                if (age >= 30 && age <= 55) rate = rate.subtract(manAgeRateDecrease);
+                rate = checkAgeMale(age, rate);
                 break;
             case FEMALE:
-                if (age >= 32 && age <= 60) rate = rate.subtract(womanAgeRateDecrease);
+                rate = checkAgeFemale(age, rate);
                 break;
             case NON_BINARY:
-                rate = rate.add(nonBinaryRateIncrease);
-            default:
-                break;
+                rate = rate.add(properties.getNonBinaryRate());
         }
         return rate;
     }
 
-    private void checkWorkExperience(EmploymentDto employmentDto) throws ScoringDataDtoValidationExc {
-        if (employmentDto.getWorkExperienceTotal() < 18) {
-            log.info("DECLINED :NOT ENOUGH TOTAL WORK EXPERIENCE ");
-            throw new ScoringDataDtoValidationExc("DECLINED :NOT ENOUGH TOTAL WORK EXPERIENCE ");
+    private void checkWorkExperience(EmploymentDto employmentDto) {
+        if (employmentDto.getWorkExperienceTotal() < properties.getMinTotalWorkExperience()) {
+            log.error("DECLINED: NOT ENOUGH TOTAL WORK EXPERIENCE ");
+            throw new ScoringDataDtoValidationExc("DECLINED: NOT ENOUGH TOTAL WORK EXPERIENCE ");
         }
-        if (employmentDto.getWorkExperienceCurrent() < 3) {
-            log.info("DECLINED :NOT ENOUGH CURRENT WORK EXPERIENCE ");
-            throw new ScoringDataDtoValidationExc("DECLINED :NOT ENOUGH CURRENT WORK EXPERIENCE ");
+        if (employmentDto.getWorkExperienceCurrent() < properties.getMinCurrentWorkExperience()) {
+            log.error("DECLINED: NOT ENOUGH CURRENT WORK EXPERIENCE ");
+            throw new ScoringDataDtoValidationExc("DECLINED: NOT ENOUGH CURRENT WORK EXPERIENCE ");
         }
 
     }
 
     public BigDecimal checkInsuranceEnabled(Boolean isInsuranceEnabled, BigDecimal rate) {
-        if (isInsuranceEnabled) rate = rate.subtract(BigDecimal.valueOf(3.0));
+        if (isInsuranceEnabled) {
+            rate = rate.subtract(properties.getInsuranceRate());
+        }
         return rate;
     }
 
     public BigDecimal checkSalaryClient(Boolean isSalaryClient, BigDecimal rate) {
-        if (isSalaryClient) rate = rate.subtract(BigDecimal.valueOf(1.0));
+        if (isSalaryClient) {
+            rate = rate.subtract(properties.getSalaryRate());
+        }
         return rate;
+    }
+
+    private BigDecimal checkAgeMale(Integer age, BigDecimal rate) {
+        if (age >= MIN_MALE_AGE && age <= MAX_MALE_AGE) {
+            rate = rate.subtract(properties.getManAgeRate());
+        }
+        return rate;
+    }
+
+    private BigDecimal checkAgeFemale(Integer age, BigDecimal rate) {
+        if (age >= MIN_FEMALE_AGE && age <= MAX_FEMALE_AGE) {
+            rate = rate.subtract(properties.getWomanAgeRate());
+        }
+        return rate;
+    }
+
+    private void checkAge(Integer age) {
+        if (age < MIN_AGE || age > MAX_AGE) {
+            log.error("DECLINED: Age should be between 20 and 65");
+            throw new ScoringDataDtoValidationExc("DECLINED: Age should be between 20 and 65");
+        }
     }
 }
