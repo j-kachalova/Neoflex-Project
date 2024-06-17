@@ -3,11 +3,13 @@ package com.kachalova.deal.entities;
 import com.kachalova.deal.dto.LoanOfferDto;
 import com.kachalova.deal.dto.StatementStatusHistoryDto;
 import com.kachalova.deal.enums.ApplicationStatus;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class Statement {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

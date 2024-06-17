@@ -17,6 +17,8 @@
 		<java.version>17</java.version>
 		<lombok.version>1.18.32</lombok.version>
 		<io.springfox.version>3.0.0</io.springfox.version>
+		<io.hypersistence>3.7.0</io.hypersistence>
+		<om.h2database>2.1.214</om.h2database>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -69,8 +71,14 @@
 		<dependency>
 			<groupId>io.hypersistence</groupId>
 			<artifactId>hypersistence-utils-hibernate-55</artifactId>
-			<version>3.7.0</version>
+			<version>${io.hypersistence}</version>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

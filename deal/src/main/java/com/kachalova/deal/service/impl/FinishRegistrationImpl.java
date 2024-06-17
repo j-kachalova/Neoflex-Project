@@ -1,9 +1,9 @@
 package com.kachalova.deal.service.impl;
 
+import com.kachalova.deal.dto.*;
 import com.kachalova.deal.entities.Client;
 import com.kachalova.deal.entities.Credit;
 import com.kachalova.deal.entities.Statement;
-import com.kachalova.deal.dto.*;
 import com.kachalova.deal.enums.ApplicationStatus;
 import com.kachalova.deal.enums.ChangeType;
 import com.kachalova.deal.enums.CreditStatus;
@@ -11,6 +11,7 @@ import com.kachalova.deal.repos.CreditRepo;
 import com.kachalova.deal.repos.StatementRepo;
 import com.kachalova.deal.service.FinishRegistration;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,20 +20,23 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FinishRegistrationImpl implements FinishRegistration {
     private final StatementRepo statementRepo;
     private final CreditRepo creditRepo;
     private final RestTemplate restTemplate;
+
     @Override
     public void finishRegistration(FinishRegistrationRequestDto requestDto, String statementId) {
+        log.info("FinishRegistrationRequestDto: {}", requestDto);
         Statement statementFromDb = statementRepo.findById(UUID.fromString(statementId));
         Client client = statementFromDb.getClient();
         PassportDto passport = client.getPassport();
         ScoringDataDto scoringDataDto = ScoringDataDto.builder()
-//                .amount()
-//                .term()
+                .amount(statementFromDb.getAppliedOffer().getRequestedAmount())
+                .term(statementFromDb.getAppliedOffer().getTerm())
                 .firstName(client.getFirstName())
                 .lastName(client.getLastName())
                 .middleName(client.getMiddleName())
@@ -46,10 +50,12 @@ public class FinishRegistrationImpl implements FinishRegistration {
                 .dependentAmount(requestDto.getDependentAmount())
                 .employment(requestDto.getEmployment())
                 .accountNumber(requestDto.getAccountNumber())
-//                .isInsuranceEnabled()
-//                .isSalaryClient()
+                .isInsuranceEnabled(statementFromDb.getAppliedOffer().getIsInsuranceEnabled())
+                .isSalaryClient(statementFromDb.getAppliedOffer().getIsSalaryClient())
                 .build();
+        log.debug("scoringDataDto: {}", scoringDataDto);
         Credit credit = creditCalculation(scoringDataDto);
+        log.debug("credit: {}", credit);
         creditRepo.save(credit);
         statementFromDb.setCredit(credit);
 
@@ -62,11 +68,12 @@ public class FinishRegistrationImpl implements FinishRegistration {
         statementFromDb.setStatus(statementStatusHistoryDto.getStatus());
         statementFromDb.getStatusHistory().add(statementStatusHistoryDto);
         statementRepo.save(statementFromDb);
+        log.debug("statementFromDb:{}", statementFromDb);
     }
 
     private Credit creditCalculation(ScoringDataDto scoringDataDto) {
         HttpEntity<ScoringDataDto> httpEntity = new HttpEntity<>(scoringDataDto);
-        ResponseEntity<CreditDto> responseEntity =  restTemplate.postForEntity("http://localhost:8080/calculator/calc", httpEntity, CreditDto.class);
+        ResponseEntity<CreditDto> responseEntity = restTemplate.postForEntity("http://localhost:8080/calculator/calc", httpEntity, CreditDto.class);
         CreditDto creditDto = responseEntity.getBody();
         Credit credit = Credit.builder()
                 .amount(creditDto.getAmount())

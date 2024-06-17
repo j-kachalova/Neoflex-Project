@@ -6,7 +6,6 @@ import com.kachalova.deal.dto.LoanStatementRequestDto;
 import com.kachalova.deal.service.FinishRegistration;
 import com.kachalova.deal.service.LoanOfferCalculation;
 import com.kachalova.deal.service.LoanOfferSelection;
-import com.kachalova.deal.service.impl.LoanOfferCalculationImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +20,7 @@ public class DealController {
     private final LoanOfferCalculation loanOfferCalculation;
     private final LoanOfferSelection loanOfferSelection;
     private final FinishRegistration finishRegistration;
+
     @PostMapping("/statement")
     public List<LoanOfferDto> calculateLoanOffer(@RequestBody LoanStatementRequestDto requestDto) {
         log.info("LoanStatementRequestDto request: {}", requestDto);
@@ -35,7 +35,7 @@ public class DealController {
         loanOfferSelection.selectOffer(loanOfferDto);
     }
 
-    @PostMapping(" /calculate/{statementId}")
+    @PostMapping("/calculate/{statementId}")
     public void completeRegistration(@RequestBody FinishRegistrationRequestDto requestDto, @PathVariable String statementId) {
         log.info("request with FinishRegistrationRequestDto request: {}, statementId: {}", requestDto, statementId);
         finishRegistration.finishRegistration(requestDto, statementId);

@@ -10,5 +10,6 @@ import java.util.UUID;
 @Repository
 public interface StatementRepo extends CrudRepository<Statement, Integer> {
     Statement findById(UUID statementId);
+
     Statement findByClient(Client client);
 }

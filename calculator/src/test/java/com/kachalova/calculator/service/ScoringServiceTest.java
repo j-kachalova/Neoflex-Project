@@ -15,7 +15,7 @@ import static com.kachalova.calculator.enums.EmploymentStatus.EMPLOYED;
 import static com.kachalova.calculator.enums.Gender.*;
 import static com.kachalova.calculator.enums.MaritalStatus.DIVORCED;
 import static com.kachalova.calculator.enums.MaritalStatus.MARRIED;
-import static com.kachalova.calculator.enums.Position.MIDDLE_MANAGER;
+import static com.kachalova.calculator.enums.Position.MID_MANAGER;
 import static com.kachalova.calculator.enums.Position.TOP_MANAGER;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -192,7 +192,7 @@ public class ScoringServiceTest {
                 .employmentStatus(EMPLOYED)
                 .employerINN("123")
                 .salary(BigDecimal.valueOf(100000))
-                .position(MIDDLE_MANAGER)
+                .position(MID_MANAGER)
                 .workExperienceTotal(20)
                 .workExperienceCurrent(20)
                 .build();
@@ -224,7 +224,7 @@ public class ScoringServiceTest {
                 .employmentStatus(EMPLOYED)
                 .employerINN("123")
                 .salary(BigDecimal.valueOf(100000))
-                .position(MIDDLE_MANAGER)
+                .position(MID_MANAGER)
                 .workExperienceTotal(20)
                 .workExperienceCurrent(20)
                 .build();
@@ -256,7 +256,7 @@ public class ScoringServiceTest {
                 .employmentStatus(EMPLOYED)
                 .employerINN("123")
                 .salary(BigDecimal.valueOf(100000))
-                .position(MIDDLE_MANAGER)
+                .position(MID_MANAGER)
                 .workExperienceTotal(20)
                 .workExperienceCurrent(20)
                 .build();
@@ -288,7 +288,7 @@ public class ScoringServiceTest {
                 .employmentStatus(EMPLOYED)
                 .employerINN("123")
                 .salary(BigDecimal.valueOf(100000))
-                .position(MIDDLE_MANAGER)
+                .position(MID_MANAGER)
                 .workExperienceTotal(20)
                 .workExperienceCurrent(20)
                 .build();
@@ -324,7 +324,7 @@ public class ScoringServiceTest {
                 .employmentStatus(EMPLOYED)
                 .employerINN("123")
                 .salary(BigDecimal.valueOf(100000))
-                .position(MIDDLE_MANAGER)
+                .position(MID_MANAGER)
                 .workExperienceTotal(20)
                 .workExperienceCurrent(20)
                 .build();

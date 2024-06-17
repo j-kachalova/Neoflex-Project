@@ -72,7 +72,7 @@ public class ScoringServiceImpl implements ScoringService {
 
     private BigDecimal checkPosition(Position position, BigDecimal rate) {
         switch (position) {
-            case MIDDLE_MANAGER:
+            case MID_MANAGER:
                 rate = rate.subtract(properties.getMiddleManagerRate());
                 break;
             case TOP_MANAGER:
