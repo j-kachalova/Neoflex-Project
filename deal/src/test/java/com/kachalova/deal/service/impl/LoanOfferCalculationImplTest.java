@@ -17,9 +17,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
+
 @SpringBootTest
-@Transactional
 class LoanOfferCalculationImplTest {
     @Autowired
     private LoanOfferCalculation loanOfferCalculation;

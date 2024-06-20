@@ -7,18 +7,29 @@ import com.kachalova.deal.entities.Statement;
 import com.kachalova.deal.enums.ApplicationStatus;
 import com.kachalova.deal.enums.ChangeType;
 import com.kachalova.deal.enums.CreditStatus;
+import com.kachalova.deal.exceptions.ExternalServiceException;
+import com.kachalova.deal.mapper.CreditMapper;
+import com.kachalova.deal.mapper.ScoringDataDtoMapper;
+import com.kachalova.deal.mapper.StatementMapper;
+import com.kachalova.deal.mapper.StatementStatusHistoryDtoMapper;
 import com.kachalova.deal.repos.CreditRepo;
 import com.kachalova.deal.repos.StatementRepo;
+import com.kachalova.deal.service.ExternalService;
 import com.kachalova.deal.service.FinishRegistration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import static com.kachalova.deal.enums.ApplicationStatus.CC_APPROVED;
+import static com.kachalova.deal.enums.ApplicationStatus.CC_DENIED;
 
 @Slf4j
 @Service
@@ -27,64 +38,52 @@ public class FinishRegistrationImpl implements FinishRegistration {
     private final StatementRepo statementRepo;
     private final CreditRepo creditRepo;
     private final RestTemplate restTemplate;
-
+    private final ScoringDataDtoMapper scoringDataDtoMapper;
+    private final StatementStatusHistoryDtoMapper statementStatusHistoryDtoMapper;
+    private final CreditMapper creditMapper;
+    private final ExternalService externalService;
+    private final StatementMapper statementMapper;
     @Override
-    public void finishRegistration(FinishRegistrationRequestDto requestDto, String statementId) {
-        log.info("FinishRegistrationRequestDto: {}", requestDto);
-        Statement statementFromDb = statementRepo.findById(UUID.fromString(statementId));
-        Client client = statementFromDb.getClient();
-        PassportDto passport = client.getPassport();
-        ScoringDataDto scoringDataDto = ScoringDataDto.builder()
-                .amount(statementFromDb.getAppliedOffer().getRequestedAmount())
-                .term(statementFromDb.getAppliedOffer().getTerm())
-                .firstName(client.getFirstName())
-                .lastName(client.getLastName())
-                .middleName(client.getMiddleName())
-                .gender(requestDto.getGender())
-                .birthdate(client.getBirthDate())
-                .passportSeries(passport.getSeries())
-                .passportNumber(passport.getNumber())
-                .passportIssueDate(passport.getIssueDate())
-                .passportIssueBranch(passport.getIssueBranch())
-                .maritalStatus(requestDto.getMaritalStatus())
-                .dependentAmount(requestDto.getDependentAmount())
-                .employment(requestDto.getEmployment())
-                .accountNumber(requestDto.getAccountNumber())
-                .isInsuranceEnabled(statementFromDb.getAppliedOffer().getIsInsuranceEnabled())
-                .isSalaryClient(statementFromDb.getAppliedOffer().getIsSalaryClient())
-                .build();
-        log.debug("scoringDataDto: {}", scoringDataDto);
-        Credit credit = creditCalculation(scoringDataDto);
-        log.debug("credit: {}", credit);
+    public void finishRegistration(FinishRegistrationRequestDto requestDto, UUID statementId) {
+        log.info("FinishRegistrationImpl: finishRegistration requestDto: {}", requestDto);
+        Statement statementFromDb = statementRepo.findById(statementId);
+        ScoringDataDto scoringDataDto = scoringDataDtoMapper.toScoringDataDto(requestDto, statementFromDb);
+        log.debug("FinishRegistrationImpl: finishRegistration scoringDataDto: {}", scoringDataDto);
+        Credit credit = creditCalculation(scoringDataDto, statementFromDb);
+        log.debug("FinishRegistrationImpl: finishRegistration credit: {}", credit);
         creditRepo.save(credit);
         statementFromDb.setCredit(credit);
 
-        StatementStatusHistoryDto statementStatusHistoryDto = StatementStatusHistoryDto.builder()
-                .status(ApplicationStatus.CC_APPROVED)
-                .time(LocalDateTime.now())
-                .changeType(ChangeType.AUTOMATIC)
-                .build();
-
-        statementFromDb.setStatus(statementStatusHistoryDto.getStatus());
-        statementFromDb.getStatusHistory().add(statementStatusHistoryDto);
+        StatementStatusHistoryDto statementStatusHistoryDto = statementStatusHistoryDtoMapper.toDto(CC_APPROVED);
+        statementFromDb = statementMapper.updateStatement(statementFromDb, statementStatusHistoryDto);
         statementRepo.save(statementFromDb);
-        log.debug("statementFromDb:{}", statementFromDb);
+        log.info("FinishRegistrationImpl: finishRegistration statementFromDb:{}", statementFromDb);
     }
 
-    private Credit creditCalculation(ScoringDataDto scoringDataDto) {
-        HttpEntity<ScoringDataDto> httpEntity = new HttpEntity<>(scoringDataDto);
-        ResponseEntity<CreditDto> responseEntity = restTemplate.postForEntity("http://localhost:8080/calculator/calc", httpEntity, CreditDto.class);
-        CreditDto creditDto = responseEntity.getBody();
-        Credit credit = Credit.builder()
-                .amount(creditDto.getAmount())
-                .term(creditDto.getTerm())
-                .monthlyPayment(creditDto.getMonthlyPayment())
-                .rate(creditDto.getRate())
-                .psk(creditDto.getPsk())
-                .insurableEnabled(creditDto.getIsInsuranceEnabled())
-                .salaryClient(creditDto.getIsSalaryClient())
-                .creditStatus(CreditStatus.CALCULATED)
-                .build();
+    private Credit creditCalculation(ScoringDataDto scoringDataDto, Statement statement) {
+        log.info("FinishRegistrationImpl: creditCalculation scoringDataDto: {}", scoringDataDto);
+        ResponseEntity<CreditDto> response;
+        try {
+            response = externalService.getResponse(scoringDataDto, "http://localhost:8080/calculator/calc", CreditDto.class);
+        } catch (ExternalServiceException e) {
+            if (e.getStatus().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
+                StatementStatusHistoryDto statementStatusHistoryDto = statementStatusHistoryDtoMapper.toDto(CC_DENIED);
+                statement = statementMapper.updateStatement(statement, statementStatusHistoryDto);
+                statementRepo .save(statement);
+            }
+            throw e;
+        }
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.error("Failed to fetch loan offers: {}", response.getStatusCode());
+            throw new ExternalServiceException("Error from external service", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        CreditDto creditDto = response.getBody();
+        if (creditDto == null) {
+            log.error("creditCalculation failed");
+            throw new ExternalServiceException("CreditDto from external service is null", HttpStatus.NO_CONTENT);
+        }
+        Credit credit = creditMapper.toEntity(creditDto);
+        log.info("FinishRegistrationImpl: creditCalculation credit: {}", credit);
         return credit;
     }
 }

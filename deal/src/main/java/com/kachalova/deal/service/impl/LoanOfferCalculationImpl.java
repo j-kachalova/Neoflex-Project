@@ -7,6 +7,10 @@ import com.kachalova.deal.dto.StatementStatusHistoryDto;
 import com.kachalova.deal.entities.Client;
 import com.kachalova.deal.entities.Statement;
 import com.kachalova.deal.enums.ChangeType;
+import com.kachalova.deal.mapper.ClientMapper;
+import com.kachalova.deal.mapper.PassportDtoMapper;
+import com.kachalova.deal.mapper.StatementMapper;
+import com.kachalova.deal.mapper.StatementStatusHistoryDtoMapper;
 import com.kachalova.deal.repos.ClientRepo;
 import com.kachalova.deal.repos.StatementRepo;
 import com.kachalova.deal.service.LoanOfferCalculation;
@@ -30,11 +34,15 @@ public class LoanOfferCalculationImpl implements LoanOfferCalculation {
     private final ClientRepo clientRepo;
     private final RestTemplate restTemplate;
     private final StatementRepo statementRepo;
+    private final ClientMapper clientMapper;
+    private final PassportDtoMapper passportDtoMapper;
+    private final StatementStatusHistoryDtoMapper statementStatusHistoryDtoMapper;
+    private final StatementMapper statementMapper;
 
     private Client addClient(LoanStatementRequestDto loanStatementRequestDto) {
-        log.info("loanStatementRequestDto: {}", loanStatementRequestDto);
+        log.info("LoanOfferCalculationImpl: addClient loanStatementRequestDto: {}", loanStatementRequestDto);
         Client clientFromDb = clientRepo.findByEmail(loanStatementRequestDto.getEmail());
-        log.debug("clientFromDb: {}", clientFromDb);
+        log.debug("LoanOfferCalculationImpl: addClient clientFromDb: {}", clientFromDb);
         if (clientFromDb != null) {
             return clientFromDb;
         }
@@ -42,56 +50,38 @@ public class LoanOfferCalculationImpl implements LoanOfferCalculation {
         if (clientFromDb != null) {
             return clientFromDb;
         }
-        PassportDto passportDto = PassportDto.builder()
-                .number(loanStatementRequestDto.getPassportNumber())
-                .series(loanStatementRequestDto.getPassportSeries())
-                .build();
-        Client client = Client.builder()
-                .lastName(loanStatementRequestDto.getLastName())
-                .firstName(loanStatementRequestDto.getFirstName())
-                .middleName(loanStatementRequestDto.getMiddleName())
-                .birthDate(loanStatementRequestDto.getBirthdate())
-                .email(loanStatementRequestDto.getEmail())
-                .passport(passportDto)
-                .build();
-        log.debug("passportDto: {}", passportDto);
+        PassportDto passportDto = passportDtoMapper.toPassportDto(loanStatementRequestDto);
+        Client client = clientMapper.toEntity(loanStatementRequestDto, passportDto);
+        log.debug("LoanOfferCalculationImpl: addClient passportDto: {}", passportDto);
         clientRepo.save(client);
-        log.info("client: {}", client);
+        log.info("LoanOfferCalculationImpl: addClient client: {}", client);
         return client;
     }
 
     private Statement addStatement(Client client) {
-        log.info("client: {}", client);
+        log.info("LoanOfferCalculationImpl: addStatement client: {}", client);
         Statement statementFromDb = statementRepo.findByClient(client);
-        log.debug("statementFromDb: {}", statementFromDb);
+        log.debug("LoanOfferCalculationImpl: addStatement statementFromDb: {}", statementFromDb);
         if (statementFromDb != null) {
             return statementFromDb;
         }
-        StatementStatusHistoryDto statementStatusHistoryDto = StatementStatusHistoryDto.builder()
-                .status(PREAPPROVAL)
-                .changeType(ChangeType.AUTOMATIC)
-                .time(LocalDateTime.now())
-                .build();
+        StatementStatusHistoryDto statementStatusHistoryDto = statementStatusHistoryDtoMapper.toDto(PREAPPROVAL);
 
-        Statement statement = Statement.builder()
-                .client(client)
-                .status(statementStatusHistoryDto.getStatus())
-                .creationDate(LocalDateTime.now())
-                .signDate(LocalDateTime.now())
-                .statusHistory(List.of(statementStatusHistoryDto))
-                .build();
+
+        Statement statement = statementMapper.toStatement(client, statementStatusHistoryDto);
 
         statementRepo.save(statement);
+        log.info("LoanOfferCalculationImpl: addStatement statement: {}", statement);
         return statement;
     }
 
     @Override
     public List<LoanOfferDto> calculateLoanOffer(LoanStatementRequestDto loanStatementRequestDto) {
-        log.info("loanStatementRequestDto: {}", loanStatementRequestDto);
+        log.info("LoanOfferCalculationImpl: calculateLoanOffer loanStatementRequestDto: {}", loanStatementRequestDto);
         Client client = addClient(loanStatementRequestDto);
-        log.debug("client: {}", client);
+        log.debug("LoanOfferCalculationImpl: calculateLoanOffer client: {}", client);
         Statement statement = addStatement(client);
-        log.debug("statement: {}", statement);
+        log.debug("LoanOfferCalculationImpl: calculateLoanOffer statement: {}", statement);
         HttpEntity<LoanStatementRequestDto> httpEntity = new HttpEntity<>(loanStatementRequestDto);
         ResponseEntity<LoanOfferDto[]> response = restTemplate.postForEntity("http://localhost:8080/calculator/offers", httpEntity, LoanOfferDto[].class);
         List<LoanOfferDto> loanOfferDtoList = List.of(Objects.requireNonNull(response.getBody()));
@@ -99,7 +89,7 @@ public class LoanOfferCalculationImpl implements LoanOfferCalculation {
         loanOfferDtoList.get(1).setStatementId(statement.getId());
         loanOfferDtoList.get(2).setStatementId(statement.getId());
         loanOfferDtoList.get(3).setStatementId(statement.getId());
-        log.info("loanOfferDtoList: {}", loanOfferDtoList);
+        log.info("LoanOfferCalculationImpl: calculateLoanOffer loanOfferDtoList: {}", loanOfferDtoList);
         return loanOfferDtoList;
     }
 }

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoanStatementRequestDto {
+public class LoanStatementRequestDto implements RequestDto {
     @NotNull
     @DecimalMin(value = "30000", message = "Loan amount must be at least 30000")
     private BigDecimal amount;
