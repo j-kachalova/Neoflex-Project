@@ -11,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -47,7 +46,6 @@ public class LoanServiceImpl implements LoanService {
         BigDecimal totalAmount = creditPaymentsService.calculatePsk(monthlyPayment, requestDto.getTerm());
 
         return LoanOfferDto.builder()
-                .statementId(UUID.randomUUID())
                 .requestedAmount(requestDto.getAmount())
                 .totalAmount(totalAmount)
                 .term(requestDto.getTerm())

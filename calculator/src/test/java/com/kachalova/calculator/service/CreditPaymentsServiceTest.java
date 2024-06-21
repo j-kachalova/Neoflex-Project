@@ -14,7 +14,7 @@ import java.util.List;
 import static com.kachalova.calculator.enums.EmploymentStatus.EMPLOYED;
 import static com.kachalova.calculator.enums.Gender.FEMALE;
 import static com.kachalova.calculator.enums.MaritalStatus.MARRIED;
-import static com.kachalova.calculator.enums.Position.MIDDLE_MANAGER;
+import static com.kachalova.calculator.enums.Position.MID_MANAGER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -41,7 +41,7 @@ class CreditPaymentsServiceTest {
                 .employmentStatus(EMPLOYED)
                 .employerINN("123")
                 .salary(BigDecimal.valueOf(100000))
-                .position(MIDDLE_MANAGER)
+                .position(MID_MANAGER)
                 .workExperienceTotal(20)
                 .workExperienceCurrent(20)
                 .build();
