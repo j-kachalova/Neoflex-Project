@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScoringDataDto implements RequestDto{
+public class ScoringDataDto implements RequestDto {
     private BigDecimal amount;
     private Integer term;
     private String firstName;

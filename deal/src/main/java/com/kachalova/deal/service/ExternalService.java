@@ -1,12 +1,9 @@
 package com.kachalova.deal.service;
 
-import com.kachalova.deal.dto.CreditDto;
 import com.kachalova.deal.dto.RequestDto;
-import com.kachalova.deal.dto.ScoringDataDto;
 import com.kachalova.deal.exceptions.ExternalServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +23,7 @@ public class ExternalService {
         log.debug("ExternalService: getResponse: httpEntity: {}", httpEntity);
         try {
             ResponseEntity<T> responseEntity = restTemplate.postForEntity(url, httpEntity, responseType);
-            log.info("ExternalService: getResponse: responseEntity: {}",responseEntity);
+            log.info("ExternalService: getResponse: responseEntity: {}", responseEntity);
             return responseEntity;
         } catch (HttpStatusCodeException e) {
             log.error("ExternalService: getResponse: exception: {}", e.getMessage());

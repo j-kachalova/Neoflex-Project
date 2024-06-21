@@ -4,13 +4,11 @@ import com.kachalova.deal.dto.EmploymentDto;
 import com.kachalova.deal.dto.PassportDto;
 import com.kachalova.deal.enums.Gender;
 import com.kachalova.deal.enums.MaritalStatus;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDate;

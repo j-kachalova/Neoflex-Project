@@ -2,26 +2,40 @@ package com.kachalova.deal.service.impl;
 
 import com.kachalova.deal.dto.LoanOfferDto;
 import com.kachalova.deal.dto.LoanStatementRequestDto;
-import com.kachalova.deal.service.LoanOfferCalculation;
+import com.kachalova.deal.dto.RequestDto;
+import com.kachalova.deal.entities.Client;
+import com.kachalova.deal.entities.Statement;
+import com.kachalova.deal.repos.ClientRepo;
+import com.kachalova.deal.repos.StatementRepo;
+import com.kachalova.deal.service.ExternalService;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 
 @SpringBootTest
 class LoanOfferCalculationImplTest {
-    @Autowired
-    private LoanOfferCalculation loanOfferCalculation;
+    @Mock
+    private ClientRepo clientRepo;
+    @Mock
+    private StatementRepo statementRepo;
+    @Mock
+    private ExternalService externalService;
+    @InjectMocks
+    private LoanOfferCalculationImpl loanOfferCalculation;
 
     @Test
     public void calculateLoanOffer() {
@@ -36,6 +50,19 @@ class LoanOfferCalculationImplTest {
                 .passportSeries("1234")
                 .passportNumber("123456")
                 .build();
+        Statement statement = Statement.builder()
+                .id(UUID.randomUUID())
+                .build();
+        System.out.println("STATEMENT" + statement);
+        LoanOfferDto[] loanOfferDtos = new LoanOfferDto[]{new LoanOfferDto(),
+                new LoanOfferDto(),
+                new LoanOfferDto(),
+                new LoanOfferDto()};
+        ResponseEntity<LoanOfferDto[]> response = new ResponseEntity<>(loanOfferDtos, HttpStatus.OK);
+        when(clientRepo.findByEmail(any(String.class))).thenReturn(new Client());
+        when(statementRepo.findByClient(any(Client.class))).thenReturn(statement);
+        when(externalService.getResponse(any(RequestDto.class), any(String.class),
+                eq(LoanOfferDto[].class))).thenReturn(response);
         List<LoanOfferDto> list = loanOfferCalculation.calculateLoanOffer(loanStatementRequestDto);
         assertNotNull(list.get(0).getStatementId());
         assertNotNull(list.get(1).getStatementId());

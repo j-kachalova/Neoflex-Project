@@ -17,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/deal")
-public class  DealController {
+public class DealController {
     private final LoanOfferCalculation loanOfferCalculation;
     private final LoanOfferSelection loanOfferSelection;
     private final FinishRegistration finishRegistration;

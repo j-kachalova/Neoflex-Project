@@ -6,24 +6,23 @@ import com.kachalova.deal.dto.PassportDto;
 import com.kachalova.deal.dto.StatementStatusHistoryDto;
 import com.kachalova.deal.entities.Client;
 import com.kachalova.deal.entities.Statement;
-import com.kachalova.deal.enums.ChangeType;
+import com.kachalova.deal.exceptions.ExternalServiceException;
 import com.kachalova.deal.mapper.ClientMapper;
 import com.kachalova.deal.mapper.PassportDtoMapper;
 import com.kachalova.deal.mapper.StatementMapper;
 import com.kachalova.deal.mapper.StatementStatusHistoryDtoMapper;
 import com.kachalova.deal.repos.ClientRepo;
 import com.kachalova.deal.repos.StatementRepo;
+import com.kachalova.deal.service.ExternalService;
 import com.kachalova.deal.service.LoanOfferCalculation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import static com.kachalova.deal.enums.ApplicationStatus.PREAPPROVAL;
 
@@ -38,6 +37,7 @@ public class LoanOfferCalculationImpl implements LoanOfferCalculation {
     private final PassportDtoMapper passportDtoMapper;
     private final StatementStatusHistoryDtoMapper statementStatusHistoryDtoMapper;
     private final StatementMapper statementMapper;
+    private final ExternalService externalService;
 
     private Client addClient(LoanStatementRequestDto loanStatementRequestDto) {
         log.info("LoanOfferCalculationImpl: addClient loanStatementRequestDto: {}", loanStatementRequestDto);
@@ -82,9 +82,21 @@ public class LoanOfferCalculationImpl implements LoanOfferCalculation {
         log.debug("LoanOfferCalculationImpl: calculateLoanOffer client: {}", client);
         Statement statement = addStatement(client);
         log.debug("LoanOfferCalculationImpl: calculateLoanOffer statement: {}", statement);
-        HttpEntity<LoanStatementRequestDto> httpEntity = new HttpEntity<>(loanStatementRequestDto);
-        ResponseEntity<LoanOfferDto[]> response = restTemplate.postForEntity("http://localhost:8080/calculator/offers", httpEntity, LoanOfferDto[].class);
-        List<LoanOfferDto> loanOfferDtoList = List.of(Objects.requireNonNull(response.getBody()));
+        ResponseEntity<LoanOfferDto[]> response;
+        response = externalService.getResponse(loanStatementRequestDto,
+                "http://localhost:8080/calculator/offers",
+                LoanOfferDto[].class);
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.error("Failed to fetch loan offers: {}", response.getStatusCode());
+            throw new ExternalServiceException("Error from external service", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        LoanOfferDto[] loanOfferDtos = response.getBody();
+        if (loanOfferDtos == null || loanOfferDtos.length == 0) {
+            log.error("LoanOfferCalculationImpl: calculateLoanOffer failed");
+            throw new ExternalServiceException("LoanOfferDto[] from external service is null", HttpStatus.NO_CONTENT);
+        }
+        List<LoanOfferDto> loanOfferDtoList = List.of(loanOfferDtos);
         loanOfferDtoList.get(0).setStatementId(statement.getId());
         loanOfferDtoList.get(1).setStatementId(statement.getId());
         loanOfferDtoList.get(2).setStatementId(statement.getId());

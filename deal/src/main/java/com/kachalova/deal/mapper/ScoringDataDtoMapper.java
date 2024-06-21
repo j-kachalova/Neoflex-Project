@@ -11,12 +11,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ScoringDataDtoMapper {
-    public ScoringDataDto toScoringDataDto(FinishRegistrationRequestDto requestDto, Statement statement){
-        log.info("toScoringDataDto requestDto: {}, statement: {}", requestDto, statement);
+    public ScoringDataDto toScoringDataDto(FinishRegistrationRequestDto requestDto, Statement statement) {
+        log.info("ScoringDataDtoMapper toScoringDataDto requestDto: {}, statement: {}",
+                requestDto, statement);
         Client client = statement.getClient();
-        log.info("toScoringDataDto client: {}", client);
+        log.debug("ScoringDataDtoMapper toScoringDataDto client: {}", client);
         PassportDto passport = client.getPassport();
-        log.debug("toScoringDataDto passport: {}", passport);
+        log.debug("ScoringDataDtoMapper toScoringDataDto passport: {}", passport);
         ScoringDataDto scoringDataDto = ScoringDataDto.builder()
                 .amount(statement.getAppliedOffer().getRequestedAmount())
                 .term(statement.getAppliedOffer().getTerm())
@@ -36,7 +37,7 @@ public class ScoringDataDtoMapper {
                 .isInsuranceEnabled(statement.getAppliedOffer().getIsInsuranceEnabled())
                 .isSalaryClient(statement.getAppliedOffer().getIsSalaryClient())
                 .build();
-        log.info("toScoringDataDto scoringDataDto: {}", scoringDataDto);
+        log.info("ScoringDataDtoMapper toScoringDataDto scoringDataDto: {}", scoringDataDto);
         return scoringDataDto;
     }
 }

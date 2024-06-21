@@ -1,12 +1,11 @@
 package com.kachalova.deal.service.impl;
 
-import com.kachalova.deal.dto.*;
-import com.kachalova.deal.entities.Client;
+import com.kachalova.deal.dto.CreditDto;
+import com.kachalova.deal.dto.FinishRegistrationRequestDto;
+import com.kachalova.deal.dto.ScoringDataDto;
+import com.kachalova.deal.dto.StatementStatusHistoryDto;
 import com.kachalova.deal.entities.Credit;
 import com.kachalova.deal.entities.Statement;
-import com.kachalova.deal.enums.ApplicationStatus;
-import com.kachalova.deal.enums.ChangeType;
-import com.kachalova.deal.enums.CreditStatus;
 import com.kachalova.deal.exceptions.ExternalServiceException;
 import com.kachalova.deal.mapper.CreditMapper;
 import com.kachalova.deal.mapper.ScoringDataDtoMapper;
@@ -18,14 +17,11 @@ import com.kachalova.deal.service.ExternalService;
 import com.kachalova.deal.service.FinishRegistration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static com.kachalova.deal.enums.ApplicationStatus.CC_APPROVED;
@@ -43,6 +39,7 @@ public class FinishRegistrationImpl implements FinishRegistration {
     private final CreditMapper creditMapper;
     private final ExternalService externalService;
     private final StatementMapper statementMapper;
+
     @Override
     public void finishRegistration(FinishRegistrationRequestDto requestDto, UUID statementId) {
         log.info("FinishRegistrationImpl: finishRegistration requestDto: {}", requestDto);
@@ -69,12 +66,12 @@ public class FinishRegistrationImpl implements FinishRegistration {
             if (e.getStatus().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
                 StatementStatusHistoryDto statementStatusHistoryDto = statementStatusHistoryDtoMapper.toDto(CC_DENIED);
                 statement = statementMapper.updateStatement(statement, statementStatusHistoryDto);
-                statementRepo .save(statement);
+                statementRepo.save(statement);
             }
             throw e;
         }
         if (response.getStatusCode() != HttpStatus.OK) {
-            log.error("Failed to fetch loan offers: {}", response.getStatusCode());
+            log.error("Failed to fetch CreditDto: {}", response.getStatusCode());
             throw new ExternalServiceException("Error from external service", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         CreditDto creditDto = response.getBody();

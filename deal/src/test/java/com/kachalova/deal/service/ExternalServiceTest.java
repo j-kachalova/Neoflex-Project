@@ -3,12 +3,11 @@ package com.kachalova.deal.service;
 import com.kachalova.deal.dto.CreditDto;
 import com.kachalova.deal.dto.EmploymentDto;
 import com.kachalova.deal.dto.ScoringDataDto;
-import com.sun.net.httpserver.Authenticator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +20,16 @@ import static com.kachalova.deal.enums.EmploymentPosition.MID_MANAGER;
 import static com.kachalova.deal.enums.EmploymentStatus.EMPLOYED;
 import static com.kachalova.deal.enums.Gender.FEMALE;
 import static com.kachalova.deal.enums.MaritalStatus.MARRIED;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+
+@ExtendWith(MockitoExtension.class)
 class ExternalServiceTest {
     @Mock
     private RestTemplate restTemplate;
-    @Mock
-    private HttpEntity<CreditDto> httpEntity;
 
     @InjectMocks
     private ExternalService externalService;
@@ -63,9 +62,9 @@ class ExternalServiceTest {
                 .isSalaryClient(true)
                 .build();
         String url = "http://localhost:8080/calculator/calc";
-        ResponseEntity<CreditDto> responseEntity = new ResponseEntity<>(HttpStatus.OK);
+        ResponseEntity<CreditDto> responseEntity = new ResponseEntity<>(new CreditDto(), HttpStatus.OK);
 
-        when(restTemplate.postForEntity(url, requestDto, CreditDto.class)).thenReturn(responseEntity);
+        when(restTemplate.postForEntity(any(String.class), any(HttpEntity.class), eq(CreditDto.class))).thenReturn(responseEntity);
 
         ResponseEntity<CreditDto> response = externalService.getResponse(requestDto, url, CreditDto.class);
 
