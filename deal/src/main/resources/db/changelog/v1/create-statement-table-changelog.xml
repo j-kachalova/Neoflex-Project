@@ -3,39 +3,39 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <changeSet id="v1-2" author="j-kachalova">
+    <changeSet id="create-table-statement" author="j-kachalova">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="credit"/>
+                <tableExists tableName="statement"/>
             </not>
         </preConditions>
 
-        <createTable tableName="credit">
+        <createTable tableName="statement">
             <column name="id" type="uuid">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="amount" type="numeric">
+            <column name="creation_date" type="timestamp without time zone">
                 <constraints nullable="true"/>
             </column>
-            <column name="credit_status" type="character varying(255)">
+            <column name="sign_date" type="timestamp without time zone">
                 <constraints nullable="true"/>
             </column>
-            <column name="insurable_enabled" type="boolean">
+            <column name="client_id" type="uuid">
+                <constraints foreignKeyName="client_id" referencedTableName="client" referencedColumnNames="id"/>
+            </column>
+            <column name="credit_id" type="uuid">
+                <constraints foreignKeyName="credit_id" referencedTableName="credit" referencedColumnNames="id"/>
+            </column>
+            <column name="status_history" type="jsonb">
                 <constraints nullable="true"/>
             </column>
-            <column name="monthly_payment" type="numeric">
+            <column name="applied_offer" type="jsonb">
                 <constraints nullable="true"/>
             </column>
-            <column name="psk" type="numeric">
+            <column name="ses_code" type="character varying(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="rate" type="numeric">
-                <constraints nullable="true"/>
-            </column>
-            <column name="salary_client" type="boolean">
-                <constraints nullable="true"/>
-            </column>
-            <column name="term" type="integer">
+            <column name="status" type="character varying(255)">
                 <constraints nullable="true"/>
             </column>
         </createTable>
