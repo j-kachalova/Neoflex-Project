@@ -1,0 +1,21 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: calculator
+app:
+  key-rate: 16.0
+  self-employed-rate: 1.0
+  business-owner-rate: 2.0
+  middle-manager-rate: 2.0
+  top-manager-rate: 3.0
+  married-rate: 3.0
+  divorced-rate: 1.0
+  woman-age-rate: 3.0
+  man-age-rate: 3.0
+  non-binary-rate: 7.0
+  number-salaries: 25
+  insurance-rate: 3.0
+  salary-rate: 1.0
+  min-total-work-experience: 18
+  min-current-work-experience: 3

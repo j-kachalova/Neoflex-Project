@@ -1,0 +1,16 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: deal
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/credit_neoflex
+    username: postgres
+    password: 24816
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  liquibase:
+    change-log: db/changelog/main-changelog.xml
