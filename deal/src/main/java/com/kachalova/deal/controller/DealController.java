@@ -9,7 +9,6 @@ import com.kachalova.deal.service.KafkaProducer;
 import com.kachalova.deal.service.LoanOfferCalculation;
 import com.kachalova.deal.service.LoanOfferSelection;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

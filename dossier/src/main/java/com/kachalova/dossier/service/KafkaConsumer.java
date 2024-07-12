@@ -16,7 +16,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class KafkaConsumer {
-    private final MailSenderImpl mailSender;
+    private final MailSender mailSender;
     private final ObjectMapper mapper;
 
     @KafkaListener(topics = "finish-registration", groupId = "myGroup")
