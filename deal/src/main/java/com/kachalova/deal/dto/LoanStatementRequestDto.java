@@ -1,5 +1,6 @@
 package com.kachalova.deal.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,13 +25,16 @@ public class LoanStatementRequestDto implements RequestDto {
 
     @NotBlank
     @Pattern(regexp = "[a-zA-Z]{2,30}", message = "First name must consist of 2 to 30 Latin letters")
+    @Schema(example = "Ivan")
     private String firstName;
 
     @NotBlank
     @Pattern(regexp = "[a-zA-Z]{2,30}", message = "Last name must consist of 2 to 30 Latin letters")
+    @Schema(example = "Ivanov")
     private String lastName;
 
     @Pattern(regexp = "[a-zA-Z]{2,30}", message = "Middle name must consist of 2 to 30 Latin letters")
+    @Schema(example = "Ivanovich")
     private String middleName;
 
     @Email(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
