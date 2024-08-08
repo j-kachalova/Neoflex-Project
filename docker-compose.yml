@@ -1,34 +1,38 @@
 version: '2'
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.4
+    image: confluentinc/cp-zookeeper:5.5.11.amd64
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - 22181:2181
 
   kafka:
-    image: confluentinc/cp-kafka:7.4.4
-    depends_on:
-      - zookeeper
+    image: confluentinc/cp-kafka:5.5.11.amd64
+    container_name: kafka
     ports:
-      - 29092:29092
+      - "9092:9092"
+    restart: always
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
 
   PostgreSQL:
     image: postgres:14
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=
-      - POSTGRES_PASSWORD=
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=24816
       - POSTGRES_DB=credit_neoflex
 
   statement:
@@ -62,6 +66,6 @@ services:
       - kafka
     environment:
       - SPRING_DATASOURCE_URL= jdbc:postgresql://PostgreSQL:5432/credit_neoflex
-      - SPRING_DATASOURCE_USERNAME=
-      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=24816
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update

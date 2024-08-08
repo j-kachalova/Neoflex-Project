@@ -6,8 +6,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/credit_neoflex
-    username:
-    password:
+    username: postgres
+    password: 24816
   jpa:
     hibernate:
       ddl-auto: validate
