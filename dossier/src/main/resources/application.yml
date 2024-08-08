@@ -2,7 +2,7 @@ spring:
   application:
     name: dossier
   mail:
-    username: 
+    username:
     password:
     host: smtp.mail.ru
     port: 587
@@ -13,7 +13,7 @@ spring:
           starttls:
             enable: true
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: myGroup
 server:

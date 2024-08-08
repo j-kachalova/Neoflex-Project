@@ -6,13 +6,13 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/credit_neoflex
-    username: postgres
-    password: 24816
+    username:
+    password:
   jpa:
     hibernate:
       ddl-auto: validate
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: myGroup
 
