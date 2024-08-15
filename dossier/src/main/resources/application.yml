@@ -2,8 +2,8 @@ spring:
   application:
     name: dossier
   mail:
-    username:
-    password:
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     host: smtp.mail.ru
     port: 587
     properties:
