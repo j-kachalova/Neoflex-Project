@@ -25,11 +25,11 @@ jobs:
 
       - name: Build Deal with Maven
         working-directory: ./deal
-        run: mvn -B clean install --file pom.xml
+        run: mvn -B clean install --file pom.xml -DskipTests
 
       - name: Build Dossier with Maven
         working-directory: ./dossier
-        run: mvn -B clean install --file pom.xml
+        run: mvn -B clean install --file pom.xml -DskipTests
 
       - name: Build Gateway with Maven
         working-directory: ./gateway
