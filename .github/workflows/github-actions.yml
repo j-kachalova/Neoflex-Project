@@ -54,3 +54,14 @@ jobs:
             directory: ./calculator
             token: ${{ secrets.CODECOV_TOKEN }}
             flags: Calculator
+
+        - name: Maven Verify Statement
+          working-directory: ./statement
+          run: mvn -B clean verify
+
+        - name: Test Coverage Statement
+          uses: codecov/codecov-action@v3
+          with:
+            directory: ./statement
+            token: ${{ secrets.CODECOV_TOKEN }}
+            flags: Statement
