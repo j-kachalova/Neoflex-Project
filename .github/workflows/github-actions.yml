@@ -65,3 +65,14 @@ jobs:
             directory: ./statement
             token: ${{ secrets.CODECOV_TOKEN }}
             flags: Statement
+
+        - name: Maven Verify Deal
+          working-directory: ./deal
+          run: mvn -B clean verify
+
+        - name: Test Coverage Deal
+          uses: codecov/codecov-action@v3
+          with:
+            directory: ./deal
+            token: ${{ secrets.CODECOV_TOKEN }}
+            flags: Deal
