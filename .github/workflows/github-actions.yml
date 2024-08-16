@@ -46,3 +46,10 @@ jobs:
         - name: Maven Verify Calculator
           working-directory: ./calculator
           run: mvn -B clean verify
+
+        - name: Test Coverage Calculator
+          uses: codecov/codecov-action@v3
+          with:
+            directory: ./calculator
+            token: ${{ secrets.CODECOV_TOKEN }}
+            flags: Calculator
