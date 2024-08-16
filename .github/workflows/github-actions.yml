@@ -66,13 +66,13 @@ jobs:
             token: ${{ secrets.CODECOV_TOKEN }}
             flags: Statement
 
-        - name: Maven Verify Deal
-          working-directory: ./deal
+        - name: Maven Verify Gateway
+          working-directory: ./gateway
           run: mvn -B clean verify
 
-        - name: Test Coverage Deal
+        - name: Test Coverage Gateway
           uses: codecov/codecov-action@v3
           with:
-            directory: ./deal
+            directory: ./gateway
             token: ${{ secrets.CODECOV_TOKEN }}
-            flags: Deal
+            flags: Gateway
