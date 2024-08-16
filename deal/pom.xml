@@ -19,6 +19,8 @@
         <io.springfox.version>3.0.0</io.springfox.version>
         <io.hypersistence>3.7.0</io.hypersistence>
         <org.springframework.kafka>3.2.1</org.springframework.kafka>
+        <sonar.organization>j-kachalova</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <dependencies>
         <dependency>

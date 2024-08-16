@@ -77,6 +77,20 @@ jobs:
             token: ${{ secrets.CODECOV_TOKEN }}
             flags: Gateway
 
+        - name: Test Coverage Deal
+          uses: codecov/codecov-action@v3
+          with:
+            directory: ./deal
+            token: ${{ secrets.CODECOV_TOKEN }}
+            flags: Deal
+
+        - name: Test Coverage Dossier
+          uses: codecov/codecov-action@v3
+          with:
+            directory: ./dossier
+            token: ${{ secrets.CODECOV_TOKEN }}
+            flags: Dossier
+
   sonarcloud:
     runs-on: ubuntu-latest
     steps:
@@ -103,6 +117,20 @@ jobs:
 
       - name: Analyze Gateway with SonarCloud
         working-directory: ./gateway
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN}}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=j-kachalova_Neoflex-Project
+
+      - name: Analyze Deal with SonarCloud
+        working-directory: ./deal
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN}}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=j-kachalova_Neoflex-Project
+
+      - name: Analyze Dossier with SonarCloud
+        working-directory: ./dossier
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN}}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
