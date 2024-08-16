@@ -34,7 +34,7 @@ jobs:
       - name: Build Gateway with Maven
         working-directory: ./gateway
         run: mvn -B clean install --file pom.xml
-    tests:
+  tests:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
