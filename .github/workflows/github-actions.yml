@@ -93,3 +93,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN}}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=j-kachalova_Neoflex-Project
+
+      - name: Analyze Statement with SonarCloud
+        working-directory: ./statement
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN}}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=j-kachalova_Neoflex-Project
+
+      - name: Analyze Gateway with SonarCloud
+        working-directory: ./gateway
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN}}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=j-kachalova_Neoflex-Project
