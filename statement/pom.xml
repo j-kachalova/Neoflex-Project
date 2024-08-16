@@ -18,6 +18,8 @@
         <java.version>17</java.version>
         <io.springfox.version>3.0.0</io.springfox.version>
         <org.springframework.cloud>2021.0.3</org.springframework.cloud>
+        <sonar.organization>j-kachalova</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <dependencies>
         <dependency>
