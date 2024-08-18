@@ -22,7 +22,7 @@
         <jackson-datatype-jsr310.version>2.17.1</jackson-datatype-jsr310.version>
         <sonar.organization>j-kachalova</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <org.jacoco> 0.8.7 </org.jacoco>
+        <org.jacoco> 0.8.8 </org.jacoco>
     </properties>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->

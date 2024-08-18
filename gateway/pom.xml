@@ -21,7 +21,7 @@
 		<io.hypersistence>3.7.0</io.hypersistence>
 		<sonar.organization>j-kachalova</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		<org.jacoco> 0.8.7 </org.jacoco>
+		<org.jacoco> 0.8.8 </org.jacoco>
 	</properties>
 	<dependencies>
 		<dependency>
