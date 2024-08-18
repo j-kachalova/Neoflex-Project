@@ -21,6 +21,7 @@
 		<io.hypersistence>3.7.0</io.hypersistence>
 		<sonar.organization>j-kachalova</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<org.jacoco> 0.8.7 </org.jacoco>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -101,7 +102,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.7</version>
+				<version>${org.jacoco}</version>
 				<executions>
 					<execution>
 						<goals>
