@@ -78,7 +78,7 @@ jobs:
             flags: Gateway
 
         - name: Maven Verify Dossier
-          working-directory: ./gateway
+          working-directory: ./dossier
           run: mvn -B clean verify
 
         - name: Test Coverage Dossier
@@ -87,6 +87,17 @@ jobs:
             directory: ./dossier
             token: ${{ secrets.CODECOV_TOKEN }}
             flags: Dossier
+
+        - name: Maven Verify Deal
+          working-directory: ./deal
+          run: mvn -B clean verify
+
+        - name: Test Coverage Deal
+          uses: codecov/codecov-action@v3
+          with:
+            directory: ./deal
+            token: ${{ secrets.CODECOV_TOKEN }}
+            flags: Deal
 
   sonarcloud:
     runs-on: ubuntu-latest
