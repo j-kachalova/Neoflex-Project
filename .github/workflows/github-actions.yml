@@ -77,12 +77,9 @@ jobs:
             token: ${{ secrets.CODECOV_TOKEN }}
             flags: Gateway
 
-        - name: Test Coverage Deal
-          uses: codecov/codecov-action@v3
-          with:
-            directory: ./deal
-            token: ${{ secrets.CODECOV_TOKEN }}
-            flags: Deal
+        - name: Maven Verify Dossier
+          working-directory: ./gateway
+          run: mvn -B clean verify
 
         - name: Test Coverage Dossier
           uses: codecov/codecov-action@v3

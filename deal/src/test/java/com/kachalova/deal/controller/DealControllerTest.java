@@ -3,11 +3,13 @@ package com.kachalova.deal.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kachalova.deal.dto.LoanOfferDto;
 import com.kachalova.deal.dto.LoanStatementRequestDto;
+import com.kachalova.deal.service.KafkaProducer;
+import com.kachalova.deal.service.impl.FinishRegistrationImpl;
 import com.kachalova.deal.service.impl.LoanOfferCalculationImpl;
+import com.kachalova.deal.service.impl.LoanOfferSelectionImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,8 +23,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
-@SpringBootTest
+@WebMvcTest(DealController.class)
 class DealControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -30,6 +31,12 @@ class DealControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private LoanOfferCalculationImpl loanOfferCalculation;
+    @MockBean
+    private LoanOfferSelectionImpl loanOfferSelection;
+    @MockBean
+    private FinishRegistrationImpl finishRegistration;
+    @MockBean
+    private KafkaProducer kafkaProducer;
 
     @Test
     public void calculateLoanOffer() throws Exception {
