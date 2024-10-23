@@ -84,7 +84,7 @@ public class LoanOfferCalculationImpl implements LoanOfferCalculation {
         log.debug("LoanOfferCalculationImpl: calculateLoanOffer statement: {}", statement);
         ResponseEntity<LoanOfferDto[]> response;
         response = externalService.getResponse(loanStatementRequestDto,
-                "http://localhost:8080/calculator/offers",
+                "http://calculator:8080/calculator/offers",
                 LoanOfferDto[].class);
         if (response.getStatusCode() != HttpStatus.OK) {
             log.error("Failed to fetch loan offers: {}", response.getStatusCode());

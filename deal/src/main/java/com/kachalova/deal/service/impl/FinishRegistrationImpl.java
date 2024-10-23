@@ -61,7 +61,7 @@ public class FinishRegistrationImpl implements FinishRegistration {
         log.info("FinishRegistrationImpl: creditCalculation scoringDataDto: {}", scoringDataDto);
         ResponseEntity<CreditDto> response;
         try {
-            response = externalService.getResponse(scoringDataDto, "http://localhost:8080/calculator/calc", CreditDto.class);
+            response = externalService.getResponse(scoringDataDto, "http://calculator:8080/calculator/calc", CreditDto.class);
         } catch (ExternalServiceException e) {
             if (e.getStatus().equals(HttpStatus.SERVICE_UNAVAILABLE)) {
                 StatementStatusHistoryDto statementStatusHistoryDto = statementStatusHistoryDtoMapper.toDto(CC_DENIED);

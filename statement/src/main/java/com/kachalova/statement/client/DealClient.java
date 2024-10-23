@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "deal", url = "http://localhost:8081/deal")
+@FeignClient(name = "deal", url = "http://deal:8081/deal")
 public interface DealClient {
     @RequestMapping(method = RequestMethod.POST, value = "/statement", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<LoanOfferDto[]> prescoring(@RequestBody LoanStatementRequestDto requestDto);

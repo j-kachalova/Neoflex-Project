@@ -15,9 +15,10 @@ import com.kachalova.deal.repos.CreditRepo;
 import com.kachalova.deal.repos.StatementRepo;
 import com.kachalova.deal.service.ExternalService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class FinishRegistrationImplTest {
 
     @Mock
@@ -77,7 +78,7 @@ class FinishRegistrationImplTest {
                 .thenReturn(scoringDataDto);
         when(externalService.getResponse(any(ScoringDataDto.class), anyString(), eq(CreditDto.class)))
                 .thenReturn(new ResponseEntity<>(creditDto, HttpStatus.OK));
-        when(response.getBody()).thenReturn(creditDto);
+
         when(creditMapper.toEntity(any(CreditDto.class))).thenReturn(credit);
 
         finishRegistrationImpl.finishRegistration(finishRegistrationRequestDto, statementId);

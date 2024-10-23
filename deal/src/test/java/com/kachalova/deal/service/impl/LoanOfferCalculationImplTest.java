@@ -9,9 +9,10 @@ import com.kachalova.deal.repos.ClientRepo;
 import com.kachalova.deal.repos.StatementRepo;
 import com.kachalova.deal.service.ExternalService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -26,7 +27,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class LoanOfferCalculationImplTest {
     @Mock
     private ClientRepo clientRepo;
